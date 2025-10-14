@@ -270,12 +270,12 @@ function generateMenu() {
             const button = document.createElement('button');
             button.className = 'nav-item';
             button.innerHTML = `<i class="fas ${item.icon}"></i><span>${item.label}</span>`;
-            button.addEventListener('click', () => showModule(item.id));
+            button.addEventListener('click', (e) => showModule(item.id, e));
             nav.appendChild(button);
         });
 }
 
-function showModule(moduleName) {
+function showModule(moduleName, event) {
     // Ocultar todos los módulos
     document.querySelectorAll('.module').forEach(module => {
         module.style.display = 'none';
@@ -288,7 +288,19 @@ function showModule(moduleName) {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
     });
-    event.target.closest('.nav-item').classList.add('active');
+    
+    // Solo actualizar la clase activa si hay un evento (clic del usuario)
+    if (event && event.target) {
+        event.target.closest('.nav-item').classList.add('active');
+    } else {
+        // Si se llama programáticamente, buscar el botón del menú correspondiente
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            if (item.querySelector('span') && item.querySelector('span').textContent === getModuleLabel(moduleName)) {
+                item.classList.add('active');
+            }
+        });
+    }
     
     activeModule = moduleName;
     
@@ -322,6 +334,21 @@ function showModule(moduleName) {
             updatePerfilModule();
             break;
     }
+}
+
+function getModuleLabel(moduleId) {
+    const labels = {
+        'dashboard': 'Dashboard',
+        'socios': 'Socios',
+        'asistencias': 'Asistencias',
+        'pagos': 'Pagos',
+        'planes': 'Planes',
+        'miPlan': 'Mi Plan',
+        'turnos': 'Mis Turnos',
+        'objetivos': 'Objetivos',
+        'perfil': 'Mi Perfil'
+    };
+    return labels[moduleId] || '';
 }
 
 function toggleSidebar() {
