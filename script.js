@@ -1495,29 +1495,4 @@ function showMessage(element, message, type) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initLogin();
-});pagos.forEach(pago => {
-            mensaje += `Fecha: ${formatDate(pago.fecha)}\n`;
-            mensaje += `Monto: ${formatCurrency(pago.monto)}\n`;
-            mensaje += `Método: ${pago.metodoPago}\n`;
-            mensaje += `Concepto: ${pago.concepto}\n\n`;
-        });
-        
-        alert(mensaje);
-
-// ============================================
-// FUNCIONES AUXILIARES
-// ============================================
-
-function showMessage(element, message, type) {
-    element.textContent = message;
-    element.className = `message ${type}`;
-    element.style.display = 'flex';
-}
-
-// ============================================
-// INICIALIZACIÓN
-// ============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    initLogin();
 });
