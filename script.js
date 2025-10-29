@@ -1,7 +1,6 @@
 function generateMenu() {
     const nav = document.getElementById("sidebarNav");
     nav.innerHTML = "";
-
     const menuItems = [
         {
             id: "dashboard",
@@ -95,30 +94,20 @@ function generateMenu() {
             nav.appendChild(button);
         });
 }
-// ============================================
 // DATOS INICIALES
-
 let currentUser = null;
 let activeModule = "dashboard";
-// ============================================
 // FUNCIONES DE API PARA CONECTAR CON PHP
-// ============================================
-
-/**
- * Cargar todos los socios desde MySQL
- */
+/***Cargar todos los socios desde MySQL*/
 async function cargarSociosDesdeAPI() {
     try {
         console.log('🔄 Intentando cargar socios desde API...');
         const response = await fetch('api/socios.php?action=all');
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const result = await response.json();
         console.log('📦 Respuesta recibida:', result);
-        
         if (result.success) {
             database.socios = result.data;
             console.log('✅ Socios cargados desde MySQL:', result.data.length);
@@ -134,34 +123,22 @@ async function cargarSociosDesdeAPI() {
         return [];
     }
 }
-
-/**
- * Crear nuevo socio en MySQL
- */
+/*** Crear nuevo socio en MySQL*/
 async function crearSocioEnAPI(socioData) {
     try {
         console.log('🔄 Enviando nuevo socio a la API...', socioData);
-        
         const response = await fetch('api/socios.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json',},
             body: JSON.stringify(socioData)
         });
-        
         console.log('📡 Response status:', response.status);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const result = await response.json();
         console.log('📦 Respuesta de crear socio:', result);
-        
         if (result.success) {
             console.log('✅ Socio creado en MySQL:', result.data);
-            // Recargar socios para actualizar la tabla
             await cargarSociosDesdeAPI();
             updateSociosTable();
             return result.data;
@@ -176,27 +153,19 @@ async function crearSocioEnAPI(socioData) {
         return null;
     }
 }
-/**
- * Eliminar socio en MySQL
- */
+/*** Eliminar socio en MySQL*/
 async function eliminarSocioEnAPI(socioId) {
     try {
         console.log('🔄 Eliminando socio ID:', socioId);
-        
         const response = await fetch(`api/socios.php?id=${socioId}`, {
-            method: 'DELETE'
-        });
-        
+            method: 'DELETE'});
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const result = await response.json();
         console.log('📦 Respuesta de eliminar:', result);
-        
         if (result.success) {
             console.log('✅ Socio eliminado de MySQL');
-            // Recargar socios
             await cargarSociosDesdeAPI();
             updateSociosTable();
             return true;
@@ -211,21 +180,14 @@ async function eliminarSocioEnAPI(socioId) {
         return false;
     }
 }
-/**
- * Cargar planes desde MySQL
- */
+/*** Cargar planes desde MySQL*/
 async function cargarPlanesDesdeAPI() {
     try {
         console.log('🔄 Intentando cargar planes desde API...');
         const response = await fetch('api/planes.php?action=all');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+        if (!response.ok) {throw new Error(`HTTP error! status: ${response.status}`);}
         const result = await response.json();
         console.log('📦 Respuesta planes:', result);
-        
         if (result.success) {
             database.planes = result.data;
             console.log('✅ Planes cargados desde MySQL:', result.data.length);
@@ -239,24 +201,15 @@ async function cargarPlanesDesdeAPI() {
         return [];
     }
 }
-/**
- * Cargar usuarios desde MySQL
- */
-/**
- * Cargar todos los usuarios desde MySQL
- */
+/*** Cargar usuarios desde MySQL*/
 async function cargarUsuariosDesdeAPI() {
     try {
         console.log('🔄 Intentando cargar usuarios desde API...');
         const response = await fetch('api/usuarios.php?action=all');
-        
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+            throw new Error(`HTTP error! status: ${response.status}`);}
         const result = await response.json();
         console.log('📦 Respuesta usuarios:', result);
-        
         if (result.success) {
             database.usuarios = result.data;
             console.log('✅ Usuarios cargados desde MySQL:', result.data.length);
@@ -270,106 +223,74 @@ async function cargarUsuariosDesdeAPI() {
         return [];
     }
 }
-
-
-// ============================================
 // PAGOS
-// ============================================
-
-/**
- * Cargar todos los pagos desde MySQL
- */
+/*** Cargar todos los pagos desde MySQL*/
 async function cargarPagosDesdeAPI() {
     try {
         console.log('🔄 Cargando pagos desde API...');
         const response = await fetch('api/pagos.php?action=all');
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const result = await response.json();
-        
         if (result.success) {
-            // Normalizar TODOS los campos
             database.pagos = result.data.map(pago => ({
                 ...pago,
                 socioId: pago.socioid || pago.socioId,
                 socioNombre: (pago.socio_nombre || pago.socioNombre),
-                metodoPago: pago.metodo_pago || pago.metodoPago,  // ← AGREGAR ESTO
+                metodoPago: pago.metodo_pago || pago.metodoPago,  
                 monto: parseFloat(pago.monto) || 0 
             }));
-            
             console.log('✅ Pagos cargados desde MySQL:', result.data.length);
             return result.data;
         } else {
             console.error('❌ Error al cargar pagos:', result.message);
-            return [];
-        }
+            return [];}
     } catch (error) {
         console.error('❌ Error de conexión al cargar pagos:', error);
         return [];
     }
 }
-
-/**
-* Registrar nuevo pago en MySQL
-*/
+/*** Registrar nuevo pago en MySQL*/
 async function registrarPagoEnAPI(pagoData) {
     try {
         console.log('🔄 Registrando pago...', pagoData);
-        
         const response = await fetch('api/pagos.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(pagoData)
-        });
-        
+            body: JSON.stringify(pagoData)});
         const result = await response.json();
-        
         if (result.success) {
             console.log('✅ Pago registrado en MySQL:', result.data);
             await cargarPagosDesdeAPI();
-            // Actualizar socios también porque el pago puede cambiar el estado
             await cargarSociosDesdeAPI();
             if (typeof updatePagosTable === 'function') {
-                updatePagosTable();
-            }
+                updatePagosTable();}
             if (typeof updateSociosTable === 'function') {
-                updateSociosTable();
-            }
+                updateSociosTable();}
             return result.data;
         } else {
             console.error('❌ Error al registrar pago:', result.message);
             alert('Error al registrar pago: ' + result.message);
-            return null;
-        }
+            return null;}
     } catch (error) {
         console.error('❌ Error de conexión:', error);
         alert('Error de conexión al registrar pago.');
-        return null;
-    }
+        return null;}
 }
-
-/**
- * Eliminar pago de MySQL
- */
+/*** Eliminar pago de MySQL*/
 async function eliminarPagoEnAPI(pagoId) {
     try {
         const response = await fetch(`api/pagos.php?id=${pagoId}`, {
-            method: 'DELETE'
-        });
-        
+            method: 'DELETE'});
         const result = await response.json();
-        
         if (result.success) {
             console.log('✅ Pago eliminado de MySQL');
             await cargarPagosDesdeAPI();
             if (typeof updatePagosTable === 'function') {
-                updatePagosTable();
-            }
+                updatePagosTable();}
             return true;
         } else {
             console.error('❌ Error al eliminar pago:', result.message);
@@ -381,33 +302,19 @@ async function eliminarPagoEnAPI(pagoId) {
         return false;
     }
 }
-
-
-// ============================================
 // ASISTENCIAS
-// ============================================
-
-/**
- * Cargar asistencias desde MySQL
- */
+/*** Cargar asistencias desde MySQL*/
 async function cargarAsistenciasDesdeAPI() {
     try {
         console.log('🔄 Cargando asistencias desde API...');
         const response = await fetch('api/asistencias.php?action=all');
-        
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+            throw new Error(`HTTP error! status: ${response.status}`);}
         const result = await response.json();
-        
         if (result.success) {
-            // Normalizar los datos: convertir socio_id a socioId
             database.asistencias = result.data.map(asistencia => ({
                 ...asistencia,
-                socioId: asistencia.socioid  // Agregar socioId para compatibilidad
-            }));
-            
+                socioId: asistencia.socioid }));
             console.log('✅ Asistencias cargadas desde MySQL:', result.data.length);
             return result.data;
         } else {
@@ -419,14 +326,10 @@ async function cargarAsistenciasDesdeAPI() {
         return [];
     }
 }
-
-/**
- * Registrar asistencia en MySQL
- */
+/*** Registrar asistencia en MySQL*/
 async function registrarAsistenciaEnAPI(dni) {
     try {
         console.log('🔄 Registrando asistencia para DNI:', dni);
-        
         const response = await fetch('api/asistencias.php', {
             method: 'POST',
             headers: {
@@ -434,9 +337,7 @@ async function registrarAsistenciaEnAPI(dni) {
             },
             body: JSON.stringify({ dni: dni })
         });
-        
         const result = await response.json();
-        
         if (result.success) {
             console.log('✅ Asistencia registrada:', result.data);
             await cargarAsistenciasDesdeAPI();
@@ -455,18 +356,13 @@ async function registrarAsistenciaEnAPI(dni) {
         return null;
     }
 }
-
-/**
- * Eliminar asistencia de MySQL
- */
+/** * Eliminar asistencia de MySQL*/
 async function eliminarAsistenciaEnAPI(asistenciaId) {
     try {
         const response = await fetch(`api/asistencias.php?id=${asistenciaId}`, {
             method: 'DELETE'
         });
-        
         const result = await response.json();
-        
         if (result.success) {
             console.log('✅ Asistencia eliminada de MySQL');
             await cargarAsistenciasDesdeAPI();
@@ -484,14 +380,8 @@ async function eliminarAsistenciaEnAPI(asistenciaId) {
         return false;
     }
 }
-
-// ============================================
 // CLASES
-// ============================================
-
-/**
- * Cargar clases desde MySQL
- */
+/*** Cargar clases desde MySQL*/
 async function cargarClasesDesdeAPI() {
     try {
         console.log('🔄 Cargando clases desde API...');
@@ -584,14 +474,8 @@ async function asignarInstructorEnAPI(claseId, instructorId) {
         return false;
     }
 }
-
-// ============================================
 // INSTRUCTORES
-// ============================================
-
-/**
- * Cargar instructores desde MySQL
- */
+/*** Cargar instructores desde MySQL*/
 async function cargarInstructoresDesdeAPI() {
     try {
         console.log('📄 Cargando instructores desde API...');
@@ -657,11 +541,7 @@ async function crearInstructorEnAPI(instructorData) {
         return null;
     }
 }
-
-// ============================================
 // PLANES
-// ============================================
-
 /**
  * Crear nuevo plan en MySQL
  */
@@ -761,10 +641,7 @@ async function eliminarPlanEnAPI(planId) {
         return false;
     }
 }
-// ============================================
 // USUARIOS (funciones adicionales)
-// ============================================
-
 /**
  * Crear nuevo usuario en MySQL
  */
@@ -867,10 +744,7 @@ async function eliminarUsuarioEnAPI(usuarioId) {
 }
 console.log('✅ Funciones adicionales de API cargadas correctamente');
 
-// ============================================
 // INICIALIZACIÓN COMPLETA
-// ============================================
-
 /**
  * Actualizar inicializarDatosDesdeAPI para cargar TODO
  */
@@ -925,14 +799,10 @@ async function inicializarDatosDesdeAPI() {
         console.error('❌ Error al inicializar datos:', error);
     }
 }
-
 console.log('✅ TODAS las funciones de API cargadas correctamente');
-// ============================================
-// SISTEMA COMPLETO DE PERMISOS
-// Agregar este código en script.js después de la línea 6 (después de let activeModule)
-// ============================================
 
-// Permisos base por rol (plantillas por defecto)
+// SISTEMA COMPLETO DE PERMISOS
+// Permisos base por rol 
 const permisosPorRol = {
     Administrador: {
         socios: { ver: true, crear: true, editar: true, eliminar: true },
@@ -1047,9 +917,7 @@ const permisosPorRol = {
         configuracion: { ver: false, modificar: false },
     },
 };
-// ============================================
 // FUNCIONES PRINCIPALES DE PERMISOS
-// ============================================
 function obtenerPermisosUsuario(usuarioId) {
     const usuario = database.usuarios.find((u) => u.id === usuarioId);
     if (!usuario) return null;
@@ -1216,14 +1084,8 @@ function mostrarErrorPermisos() {
         "⛔ Acceso Denegado\n\nNo tienes permisos para realizar esta acción.\nContacta al administrador si necesitas acceso.",
     );
 }
-
-// ============================================
 // INTERFAZ DE GESTIÓN DE PERMISOS
-// ============================================
-
-/**
- * Abre el modal completo de gestión de permisos
- */
+/*** Abre el modal completo de gestión de permisos*/
 function gestionarPermisosUsuario(usuarioId) {
     const usuario = database.usuarios.find((u) => u.id === usuarioId);
     if (!usuario) return;
@@ -1529,11 +1391,7 @@ function cerrarModalPermisos() {
         modal.remove();
     }
 }
-
-// ============================================
 // FUNCIONES AUXILIARES
-// ============================================
-
 function capitalizarModulo(modulo) {
     const nombres = {
         socios: "Socios",
@@ -1565,10 +1423,7 @@ function capitalizarAccion(accion) {
     };
     return nombres[accion] || accion;
 }
-
-// ============================================
 // MODIFICAR FUNCIONES EXISTENTES CON VALIDACIONES
-// ============================================
 console.log("✅ Sistema COMPLETO de Permisos cargado correctamente");
 // Base de datos en memoria
 const database = {
@@ -1918,10 +1773,7 @@ const database = {
     notificaciones: [],
     logNotificaciones: [],
 };
-
-// ============================================
 // FUNCIONES DE UTILIDAD
-
 function formatCurrency(amount) {
     return "$" + amount.toLocaleString("es-AR");
 }
@@ -1950,10 +1802,7 @@ function getCurrentTime() {
     const now = new Date();
     return now.toTimeString().split(" ")[0].substring(0, 5);
 }
-
-// ============================================
 // SISTEMA DE LOGIN
-
 function initLogin() {
 loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -2033,10 +1882,7 @@ async function logout() {
     
     console.log('✅ Sesión cerrada correctamente');
 }
-
-// ============================================
 // SISTEMA PRINCIPAL
-
 async function initMainSystem() {
     // Actualizar información del usuario
     document.getElementById("userRole").textContent = currentUser.rol;
@@ -2176,10 +2022,7 @@ function toggleSidebar() {
     const sidebar = document.getElementById("sidebar");
     sidebar.classList.toggle("collapsed");
 }
-
-// ============================================
 // MÓDULO DASHBOARD
-
 function initDashboard() {
     updateDashboard();
 }
@@ -2353,10 +2196,7 @@ function updateUltimasAsistencias() {
         })
         .join("");
 }
-
-// ============================================
 // MÓDULO GESTIÓN DE USUARIOS
-
 function initUsuariosModule() {
     // Event listeners
     document
@@ -2823,10 +2663,7 @@ function getDefaultVencimiento() {
     fecha.setDate(fecha.getDate() + 30);
     return fecha.toISOString().split("T")[0];
 }
-
-// ============================================
 // MÓDULO SOCIOS
-
 function initSociosModule() {
     const searchInput = document.getElementById("searchSocios");
     searchInput.addEventListener("input", updateSociosTable);
@@ -2955,9 +2792,7 @@ function editarSocio(id) {
     }
     abrirActualizarDatosSocio(id);
 }
-// ============================================
 // FUNCIONES PARA NUEVO SOCIO
-
 function abrirModalNuevoSocio() {
     if (!tienePermiso("socios", "crear")) {
         mostrarErrorPermisos();
@@ -3285,9 +3120,7 @@ function finalizarRegistroSocio() {
     document.getElementById("formNuevoSocio").style.display = "block";
     document.getElementById("socioRegistrado").style.display = "none";
 }
-// ============================================
 // VERIFICACIÓN DE SOCIO EXISTENTE
-
 function mostrarSocioExistente(socio, tipoCampo) {
     const modal = document.createElement("div");
     modal.className = "modal";
@@ -3846,9 +3679,7 @@ function cerrarModalPerfilSocio() {
         modal.remove();
     }
 }
-// ============================================
 // MÓDULO ASISTENCIAS
-
 function initAsistenciasModule() {
     document
         .getElementById("btnRegistrarAsistencia")
@@ -3921,10 +3752,7 @@ function updateAsistenciasTable() {
         tbody.appendChild(row);
     }
 }
-
-// ============================================
 // MÓDULO PAGOS
-
 function initPagosModule() {
     const select = document.getElementById("socioSeleccionado");
     select.innerHTML =
@@ -3932,13 +3760,11 @@ function initPagosModule() {
         database.socios
             .map((s) => `<option value="${s.id}">${s.nombre}</option>`)
             .join("");
-
     document
         .getElementById("btnRegistrarPago")
         .addEventListener("click", registrarPago);
     updatePagosTable();
 }
-
 async function registrarPago() {
     if (!tienePermiso("pagos", "crear")) {
         mostrarErrorPermisos();
@@ -4017,10 +3843,7 @@ function updatePagosTable() {
         })
         .join("");
 }
-
-// ============================================
 // MÓDULO PLANES
-
 function initPlanesModule() {
     // Ocultar botón si no es admin
     const btnNuevoPlan = document.getElementById("btnNuevoPlan");
@@ -4031,13 +3854,10 @@ function initPlanesModule() {
             btnNuevoPlan.style.display = "flex";
         }
     }
-
     updatePlanesGrid();
 }
-
 function updatePlanesGrid() {
     const grid = document.getElementById("planesGrid");
-
     if (database.planes.length === 0) {
         grid.innerHTML =
             '<p class="text-center" style="color: var(--text-light); padding: 40px;">No hay planes registrados</p>';
@@ -4102,19 +3922,14 @@ function updatePlanesGrid() {
         })
         .join("");
 }
-
 function seleccionarPlan(id) {
     const plan = database.planes.find((p) => p.id === id);
     alert(`Has seleccionado el plan: ${plan.nombre}`);
 }
-
-// ============================================
 // MÓDULO MI PLAN
-
 function initMiPlanModule() {
     updateMiPlan();
 }
-
 function updateMiPlan() {
     if (currentUser.rol !== "Socio") return;
 
@@ -4124,9 +3939,7 @@ function updateMiPlan() {
             '<p class="text-center">No se encontró información del socio</p>';
         return;
     }
-
     const plan = database.planes.find((p) => p.nombre === socio.plan);
-
     document.getElementById("miPlanNombre").textContent = socio.plan;
     document.getElementById("miPlanEstado").textContent = socio.estado;
     document.getElementById("miPlanFechaInicio").textContent = formatDate(
@@ -4276,10 +4089,7 @@ function verHistorialPagos() {
         alert(mensaje);
     }
 }
-
-// ============================================
 // MÓDULO TURNOS
-
 function initTurnosModule() {
     document
         .getElementById("filterDia")
@@ -4296,7 +4106,6 @@ function agregarSelectorSocioEnTurnos() {
     const turnosContainer = document.querySelector(
         "#turnosModule .turnos-container",
     );
-
     // Crear selector de socio al inicio
     const selectorHTML = `
         <div class="card selector-socio-turnos">
@@ -4765,10 +4574,7 @@ function getNextClassDate(dia) {
 
     return nextDate.toISOString().split("T")[0];
 }
-
-// ============================================
 // MÓDULO PERFIL
-
 function initPerfilModule() {
     document
         .getElementById("formDatosPersonales")
@@ -4916,26 +4722,18 @@ function cambiarFoto() {
         "Funcionalidad de cambio de foto. Aquí se implementaría la carga de imagen.",
     );
 }
-
-// ============================================
 // MÓDULO CLASES E INSTRUCTORES
-
 let claseSeleccionadaId = null;
-
 function initClasesInstructoresModule() {
     updateClasesTable();
-    updateInstructoresGrid();
-}
-
+    updateInstructoresGrid();}
 function updateClasesTable() {
     const tbody = document.getElementById("tablaClasesGym");
-
     tbody.innerHTML = database.clasesGym
         .map((clase) => {
             const instructor = clase.instructorId
                 ? database.instructores.find((i) => i.id === clase.instructorId)
                 : null;
-
             return `
             <tr>
                 <td>
@@ -5169,27 +4967,18 @@ function cerrarModalAsignar() {
     if (modal) {
         modal.style.display = "none";
     }
-
-    // Limpieza opcional del contenido del modal
     const preview = document.getElementById("instructorPreview");
     if (preview) preview.style.display = "none";
-
     const select = document.getElementById("instructorSelect");
-    if (select) select.value = "";
-}
-
-// ============================================
+    if (select) select.value = "";}
 // TICKETS
-
 function generarTicket(pagoId) {
     const pago = database.pagos.find((p) => p.id === pagoId);
     const socio = database.socios.find((s) => s.id === pago.socioId);
-
     if (!pago || !socio) {
         alert("Error al generar el ticket");
         return;
     }
-
     const ticketContent = document.getElementById("ticketContent");
 
     ticketContent.innerHTML = `
@@ -5284,35 +5073,24 @@ function descargarTicket() {
         'Funcionalidad de descarga PDF próximamente.\nPor ahora usa "Imprimir" y selecciona "Guardar como PDF"',
     );
 }
-
-// ============================================
 // FUNCIONES AUXILIARES
-
 function showMessage(element, message, type) {
     element.textContent = message;
     element.className = `message ${type}`;
     element.style.display = "flex";
 }
-
-// ============================================
 // INICIALIZACIÓN
-
 document.addEventListener("DOMContentLoaded", () => {
     initLogin();
 });
-// ============================================
 // MÓDULO DE REPORTES
-// ============================================
-
 function initReportesModule() {
-    // Listeners para cambios en filtros de período
     document
         .getElementById("filtroPeriodoPagos")
         .addEventListener("change", function () {
             const valor = this.value;
             const rangoFechas = document.getElementById("rangoFechasPagos");
             const rangoFechas2 = document.getElementById("rangoFechasPagos2");
-
             if (valor === "personalizado") {
                 rangoFechas.style.display = "block";
                 rangoFechas2.style.display = "block";
@@ -5321,7 +5099,6 @@ function initReportesModule() {
                 rangoFechas2.style.display = "none";
             }
         });
-
     document
         .getElementById("filtroPeriodoAsistencias")
         .addEventListener("change", function () {
@@ -5332,7 +5109,6 @@ function initReportesModule() {
             const rangoFechas2 = document.getElementById(
                 "rangoFechasAsistencias2",
             );
-
             if (valor === "personalizado") {
                 rangoFechas.style.display = "block";
                 rangoFechas2.style.display = "block";
@@ -5341,18 +5117,13 @@ function initReportesModule() {
                 rangoFechas2.style.display = "none";
             }
         });
-
-    // Cargar reporte inicial
     aplicarFiltrosPagos();
 }
-
 function cambiarTipoReporte(tipo) {
-    // Cambiar tabs activos
     document
         .querySelectorAll(".tab-btn")
         .forEach((btn) => btn.classList.remove("active"));
     event.target.closest(".tab-btn").classList.add("active");
-
     // Mostrar/ocultar secciones
     if (tipo === "pagos") {
         document.getElementById("reportePagos").style.display = "block";
@@ -5364,19 +5135,13 @@ function cambiarTipoReporte(tipo) {
         aplicarFiltrosAsistencias();
     }
 }
-
-// ============================================
 // REPORTES DE PAGOS
-// ============================================
-
 function aplicarFiltrosPagos() {
     const periodo = document.getElementById("filtroPeriodoPagos").value;
     const plan = document.getElementById("filtroPlanPagos").value;
     const metodo = document.getElementById("filtroMetodoPagos").value;
-
     let fechaDesde, fechaHasta;
     const hoy = new Date();
-
     switch (periodo) {
         case "mes-actual":
             fechaDesde = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
@@ -5403,40 +5168,34 @@ function aplicarFiltrosPagos() {
             );
             break;
     }
-
     // Filtrar pagos
     let pagosFiltrados = database.pagos.filter((pago) => {
         const fechaPago = new Date(pago.fecha + "T00:00:00");
         const socio = database.socios.find((s) => s.id === pago.socioId);
-
         const cumpleFecha = fechaPago >= fechaDesde && fechaPago <= fechaHasta;
         const cumplePlan = plan === "todos" || (socio && socio.plan === plan);
         const cumpleMetodo = metodo === "todos" || (pago.metodo_pago || pago.metodoPago) === metodo;
-
         return cumpleFecha && cumplePlan && cumpleMetodo;
     });
-
     // Actualizar estadísticas
     const totalIngresos = pagosFiltrados.reduce((sum, p) => sum + p.monto, 0);
     const cantidadPagos = pagosFiltrados.length;
     const promedio = cantidadPagos > 0 ? totalIngresos / cantidadPagos : 0;
-
     document.getElementById("totalIngresosPagos").textContent =
         formatCurrency(totalIngresos);
     document.getElementById("cantidadPagos").textContent = cantidadPagos;
     document.getElementById("promedioPagos").textContent =
         formatCurrency(promedio);
-
     // Actualizar tabla
     const tbody = document.getElementById("tablaReportePagos");
     tbody.innerHTML =
         pagosFiltrados.length > 0
             ? pagosFiltrados
-                  .map((pago) => {
-                      const socio = database.socios.find(
-                          (s) => s.id === pago.socioId,
-                      );
-                      return `
+                .map((pago) => {
+                    const socio = database.socios.find(
+                        (s) => s.id === pago.socioId,
+                    );
+                    return `
                 <tr>
                     <td>${formatDate(pago.fecha)}</td>
                     <td>${socio ? socio.nombre : "-"}</td>
@@ -5445,12 +5204,10 @@ function aplicarFiltrosPagos() {
                     <td>${pago.metodo_pago || pago.metodoPago}</td>
                     <td style="font-weight: 600; color: var(--success-color);">${formatCurrency(pago.monto)}</td>
                 </tr>
-            `;
-                  })
-                  .join("")
+            `;})
+                .join("")
             : '<tr><td colspan="6" class="text-center" style="color: var(--text-light); padding: 20px;">No hay pagos en este período</td></tr>';
 }
-
 function exportarPagosExcel() {
     alert(
         "📊 Exportando a Excel...\n\nEsta funcionalidad requiere una librería adicional.\nPor ahora se descargará como CSV.",
@@ -5531,18 +5288,12 @@ function obtenerPagosFiltrados() {
         return cumpleFecha && cumplePlan && cumpleMetodo;
     });
 }
-
-// ============================================
 // REPORTES DE ASISTENCIAS
-// ============================================
-
 function aplicarFiltrosAsistencias() {
     const periodo = document.getElementById("filtroPeriodoAsistencias").value;
-
     let fechaDesde, fechaHasta;
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-
     switch (periodo) {
         case "hoy":
             fechaDesde = hoy;
@@ -5738,29 +5489,21 @@ function obtenerAsistenciasFiltradas() {
         return fechaAsist >= fechaDesde && fechaAsist <= fechaHasta;
     });
 }
-// ============================================
 // SISTEMA DE NOTIFICACIONES
-// ============================================
-
-/**
- * Envía una notificación a un socio
- */
+/*** Envía una notificación a un socio*/
 function enviarNotificacion(socioId, tipo, asunto, mensaje, canal = "email") {
     const socio = database.socios.find((s) => s.id === socioId);
-
     if (!socio) {
         console.error("Socio no encontrado");
         return false;
     }
-
-    // Simular envío (en producción aquí iría la llamada a API de email/SMS)
-    const exito = Math.random() > 0.1; // 90% de éxito
-
+    // Simular envío 
+    const exito = Math.random() > 0.1; 
     const notificacion = {
         id: database.notificaciones.length + 1,
         socioId: socioId,
-        tipo: tipo, // 'turno', 'clase', 'vencimiento', 'pago', 'general'
-        canal: canal, // 'email', 'sms', 'ambos'
+        tipo: tipo, 
+        canal: canal, 
         asunto: asunto,
         mensaje: mensaje,
         fecha: new Date().toISOString(),
@@ -5768,9 +5511,7 @@ function enviarNotificacion(socioId, tipo, asunto, mensaje, canal = "email") {
         estado: exito ? "enviado" : "fallido",
         intentos: 1,
     };
-
     database.notificaciones.push(notificacion);
-
     // Registrar en log
     const log = {
         id: database.logNotificaciones.length + 1,
@@ -5787,21 +5528,14 @@ function enviarNotificacion(socioId, tipo, asunto, mensaje, canal = "email") {
             canal: canal,
         },
     };
-
     database.logNotificaciones.push(log);
-
     return exito;
 }
-
-/**
- * Notificar sobre reserva de turno
- */
+/*** Notificar sobre reserva de turno*/
 function notificarReservaTurno(socioId, claseId) {
     const socio = database.socios.find((s) => s.id === socioId);
     const clase = database.clases.find((c) => c.id === claseId);
-
     if (!socio || !clase) return false;
-
     const asunto = "Confirmación de Turno - The Best Gym";
     const mensaje =
         `Hola ${socio.nombre},\n\nTu turno ha sido confirmado:\n\n` +
@@ -5810,19 +5544,13 @@ function notificarReservaTurno(socioId, claseId) {
         `Hora: ${clase.hora}\n` +
         `Instructor: ${clase.instructor}\n\n` +
         `Te esperamos!\n\nThe Best Gym`;
-
     return enviarNotificacion(socioId, "turno", asunto, mensaje, "email");
 }
-
-/**
- * Notificar cancelación de turno
- */
+/*** Notificar cancelación de turno*/
 function notificarCancelacionTurno(socioId, claseId) {
     const socio = database.socios.find((s) => s.id === socioId);
     const clase = database.clases.find((c) => c.id === claseId);
-
     if (!socio || !clase) return false;
-
     const asunto = "Turno Cancelado - The Best Gym";
     const mensaje =
         `Hola ${socio.nombre},\n\nTu turno ha sido cancelado:\n\n` +
@@ -5830,26 +5558,19 @@ function notificarCancelacionTurno(socioId, claseId) {
         `Día: ${clase.dia}\n` +
         `Hora: ${clase.hora}\n\n` +
         `Puedes reservar otro turno cuando desees.\n\nThe Best Gym`;
-
     return enviarNotificacion(socioId, "turno", asunto, mensaje, "email");
 }
-
-/**
- * Notificar cambio de clase
- */
+/*** Notificar cambio de clase*/
 function notificarCambioClase(claseId, cambios) {
     const clase = database.clasesGym.find((c) => c.id === claseId);
     if (!clase) return;
-
     // Encontrar todos los turnos de esta clase
     const turnosClase = database.turnos.filter(
         (t) => t.claseId === claseId && t.estado === "Confirmado",
     );
-
     turnosClase.forEach((turno) => {
         const socio = database.socios.find((s) => s.id === turno.socioId);
         if (!socio) return;
-
         const asunto = "Cambio en tu Clase - The Best Gym";
         const mensaje =
             `Hola ${socio.nombre},\n\nHay cambios en tu clase:\n\n` +
@@ -6287,44 +6008,35 @@ window.cancelarTurno = function (turnoId) {
 
     return cancelarTurnoOriginal(turnoId);
 };
-// ============================================
 // GESTIÓN DE PLANES
-// ============================================
-
 let planEnEdicion = null;
-
 function abrirModalNuevoPlan() {
     if (currentUser.rol !== "Administrador") {
         mostrarErrorPermisos();
         return;
     }
-
     planEnEdicion = null;
     document.getElementById("tituloModalPlan").textContent = "Crear Nuevo Plan";
     document.getElementById("formPlan").reset();
     document.getElementById("planActivo").checked = true;
     document.getElementById("errorPlan").style.display = "none";
     document.getElementById("modalPlan").style.display = "flex";
-
     // Event listener
     document.getElementById("formPlan").onsubmit = (e) => {
         e.preventDefault();
         guardarPlan();
     };
 }
-
 function editarPlan(planId) {
     if (currentUser.rol !== "Administrador") {
         mostrarErrorPermisos();
         return;
     }
-
     const plan = database.planes.find((p) => p.id === planId);
     if (!plan) {
         alert("❌ Plan no encontrado");
         return;
     }
-
     planEnEdicion = plan;
     document.getElementById("tituloModalPlan").textContent = "Editar Plan";
     document.getElementById("planNombre").value = plan.nombre;
@@ -6485,45 +6197,33 @@ function cerrarModalPlan() {
     document.getElementById("formPlan").reset();
     planEnEdicion = null;
 }
-// ============================================
 // RF25: CANCELAR PLAN
-// ============================================
-
 function abrirModalCancelarPlan() {
     const socio = database.socios.find((s) => s.id === currentUser.socioId);
-
     if (!socio) {
         alert("⚠️ Error: No se encontró información del socio");
         return;
     }
-
     if (socio.estadoPlan && socio.estadoPlan.estado === "cancelado") {
         alert("❌ Tu plan ya está cancelado");
         return;
     }
-
     if (socio.estadoPlan && socio.estadoPlan.estado === "pausado") {
         alert("⚠️ Debes reactivar tu plan antes de cancelarlo");
         return;
     }
-
     const modal = document.getElementById("modalCancelarPlan");
     if (!modal) {
         alert("⚠️ Error: No se pudo abrir el modal");
         return;
     }
-
     modal.style.display = "flex";
-
     const errorDiv = document.getElementById("errorCancelarPlan");
     if (errorDiv) errorDiv.style.display = "none";
-
     const form = document.getElementById("formCancelarPlan");
     if (form) form.reset();
-
     const motivoOtro = document.getElementById("motivoOtroGroup");
     if (motivoOtro) motivoOtro.style.display = "none";
-
     // Verificar pagos pendientes
     const infoPagos = document.getElementById("infoPagosPendientes");
     if (infoPagos) {
@@ -6533,7 +6233,6 @@ function abrirModalCancelarPlan() {
             infoPagos.style.display = "none";
         }
     }
-
     // Event listener para cambio de motivo
     const selectMotivo = document.getElementById("motivoCancelacion");
     if (selectMotivo) {
@@ -6635,11 +6334,7 @@ function confirmarCancelacionPlan() {
         updateDashboard();
     }
 }
-
-// ============================================
 // RF26: PAUSAR / CONGELAR PLAN
-// ============================================
-
 function abrirModalPausarPlan() {
     const socio = database.socios.find((s) => s.id === currentUser.socioId);
 
@@ -6900,10 +6595,7 @@ function reactivarPlan() {
 
     updateMiPlan();
 }
-// ============================================
 // RF27: VER ESTADO DEL PLAN
-// ============================================
-
 function verEstadoPlan(socioId) {
     const modalExistente = document.getElementById("modalEstadoPlan");
     if (modalExistente) modalExistente.remove();
@@ -7083,17 +6775,13 @@ function verEstadoPlan(socioId) {
             </div>
         </div>
     `;
-
     document.body.appendChild(modal);
 }
-
 function cerrarModalEstadoPlan() {
     const modal = document.getElementById("modalEstadoPlan");
     if (modal) modal.remove();
 }
-// ============================================
 // VERIFICACIÓN AUTOMÁTICA PERIÓDICA
-// Verificar vencimientos cada 5 minutos
 setInterval(
     () => {
         if (currentUser) {
@@ -7104,29 +6792,21 @@ setInterval(
         }
     },
     5 * 60 * 1000,
-); // 5 minutos
-
-// ============================================
+); 
 // EXTENDER updateMiPlan para mostrar alertas
-// ============================================
 (function () {
     const originalUpdateMiPlan = window.updateMiPlan;
-
     window.updateMiPlan = function () {
         // Llamar a la función original
         if (originalUpdateMiPlan) {
             originalUpdateMiPlan();
         }
-
         if (currentUser.rol !== "Socio") return;
-
         const socio = database.socios.find((s) => s.id === currentUser.socioId);
         if (!socio) return;
-
         // Mostrar/ocultar botones según estado
         const btnPausar = document.querySelector(".btn-pause");
         const btnCancelar = document.querySelector(".btn-cancel");
-
         if (socio.estadoPlan) {
             if (
                 socio.estadoPlan.estado === "pausado" ||
@@ -7139,7 +6819,6 @@ setInterval(
                 if (btnCancelar) btnCancelar.style.display = "flex";
             }
         }
-
         // Mostrar alerta de plan pausado
         const alertaPausado = document.getElementById("alertaPlanPausado");
         if (alertaPausado) {
@@ -7179,9 +6858,8 @@ setInterval(
     };
 })();
 
-// ============================================
+
 // EXTENDER updateSociosTable para mostrar estado
-// ============================================
 (function () {
     const originalUpdateSociosTable = window.updateSociosTable;
 
@@ -7196,7 +6874,6 @@ setInterval(
                 socio.nombre.toLowerCase().includes(searchTerm) ||
                 socio.dni.includes(searchTerm),
         );
-
         tbody.innerHTML = filteredSocios
             .map((socio) => {
                 // Determinar estado real
@@ -7207,7 +6884,6 @@ setInterval(
                     if (socio.estadoPlan.estado === "cancelado")
                         estadoMostrar = "Cancelado";
                 }
-
                 return `
             <tr>
                 <td>
@@ -7224,8 +6900,8 @@ setInterval(
                         estadoMostrar === "Activo"
                             ? "badge-active"
                             : estadoMostrar === "Pausado"
-                              ? "badge"
-                              : "badge-moroso"
+                            ? "badge"
+                            : "badge-moroso"
                     }" style="${estadoMostrar === "Pausado" ? "background: #fef3c7; color: #92400e;" : ""}">
                         ${estadoMostrar}
                     </span>
@@ -7263,12 +6939,8 @@ setInterval(
             .join("");
     };
 })();
-
 console.log("✅ Funciones RF25, RF26 y RF27 cargadas correctamente");
-// ============================================
 // FUNCIONES DE ENVÍO DE EMAIL
-// ============================================
-
 /**
  * Envía credenciales de usuario por email
  */
@@ -7343,13 +7015,8 @@ async function enviarCredencialesSocioPorEmail(email, nombre, dni, username, pas
         };
     }
 }
-// ============================================
 // GESTIÓN DE PLANES DESDE ADMIN/RECEPCIONISTA
-// (Funciones con nombres únicos para evitar conflictos)
-// ============================================
-
 let socioSeleccionadoPlanAdmin = null;
-
 // MODAL: VER ESTADO DEL PLAN (Admin/Recep)
 function abrirModalEstadoPlan(socioId) {
     const socio = database.socios.find((s) => s.id === socioId);
@@ -7357,9 +7024,7 @@ function abrirModalEstadoPlan(socioId) {
         alert("Socio no encontrado");
         return;
     }
-
     socioSeleccionadoPlanAdmin = socio;
-
     // Calcular días restantes
     const hoy = new Date();
     const vencimiento = new Date(socio.vencimiento);
@@ -7367,7 +7032,6 @@ function abrirModalEstadoPlan(socioId) {
         (vencimiento - hoy) / (1000 * 60 * 60 * 24),
     );
     const estado = diasRestantes > 0 ? "Activo" : "Vencido";
-
     // Llenar datos
     document.getElementById("estadoPlanNombre").textContent = socio.nombre;
     document.getElementById("estadoPlanDni").textContent = socio.dni;
@@ -7380,12 +7044,10 @@ function abrirModalEstadoPlan(socioId) {
     );
     document.getElementById("estadoPlanDiasRestantes").textContent =
         diasRestantes > 0 ? `${diasRestantes} días` : "Vencido";
-
     const estadoBadge = document.getElementById("estadoPlanEstado");
     estadoBadge.textContent = estado;
     estadoBadge.className =
         diasRestantes > 0 ? "badge badge-active" : "badge badge-moroso";
-
     // Estado de congelamiento
     const congeladoBadge = document.getElementById("estadoPlanCongelado");
     if (socio.congelado) {
@@ -7397,7 +7059,6 @@ function abrirModalEstadoPlan(socioId) {
         congeladoBadge.textContent = "No congelado";
         congeladoBadge.className = "badge badge-active";
     }
-
     // Obtener precio del plan
     const planInfo = database.planes.find((p) => p.nombre === socio.plan);
     document.getElementById("estadoPlanPrecio").textContent = planInfo
@@ -7602,24 +7263,17 @@ window.addEventListener('load', function() {
         }
     }, 500);
 });
-// ============================================
 // MÓDULO INSTRUCTOR - MIS CLASES
-// ============================================
-
 function initMisClasesModule() {
     updateMisClasesInstructor();
 }
-
 function actualizarMisClases() {
     updateMisClasesInstructor();
 }
-
 async function updateMisClasesInstructor() {
     if (currentUser.rol !== 'Instructor') return;
-
     // Buscar el instructor del usuario actual
     const instructor = database.instructores.find(i => i.usuarioId === currentUser.id);
-    
     if (!instructor) {
         console.error('No se encontró instructor para este usuario');
         console.log('ID del usuario actual:', currentUser.id);
@@ -7645,14 +7299,11 @@ async function updateMisClasesInstructor() {
         }
         return;
     }
-
     // Obtener clases asignadas
     const clasesAsignadas = database.clasesGym.filter(c => c.instructorId === instructor.id);
-    
     // Actualizar estadísticas
     document.getElementById('totalClasesInstructor').textContent = clasesAsignadas.length;
-    
-    // Calcular alumnos de hoy (turnos confirmados para hoy en clases del instructor)
+    // Calcular alumnos de hoy 
     const hoy = getTodayString();
     let alumnosHoy = 0;
     clasesAsignadas.forEach(clase => {
@@ -7664,54 +7315,40 @@ async function updateMisClasesInstructor() {
         alumnosHoy += turnosHoy.length;
     });
     document.getElementById('totalAlumnosHoy').textContent = alumnosHoy;
-    
     // Calcular próxima clase
     actualizarProximaClase(clasesAsignadas);
-    
     // Calcular asistencias de la semana
     const asistenciasSemana = calcularAsistenciasSemana();
     document.getElementById('asistenciasSemana').textContent = asistenciasSemana;
-    
     // Generar calendario semanal
     generarCalendarioSemanalInstructor(clasesAsignadas);
-    
     // Generar lista de próximas clases
     generarProximasClasesInstructor(clasesAsignadas);
-    
     // Verificar si hay clase en curso
     verificarClaseEnCurso(clasesAsignadas);
 }
-
 function actualizarProximaClase(clases) {
     const ahora = new Date();
-    const diaActual = ahora.getDay(); // 0 = domingo, 1 = lunes, etc.
-    const horaActual = ahora.getHours() * 60 + ahora.getMinutes(); // minutos desde medianoche
-    
+    const diaActual = ahora.getDay(); 
+    const horaActual = ahora.getHours() * 60 + ahora.getMinutes(); 
     const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    
     let proximaClase = null;
     let menorDiferencia = Infinity;
-    
     clases.forEach(clase => {
         // Extraer día y hora del horario (ej: "Lunes y Miércoles 09:00")
         const horarioParts = clase.horario.split(' ');
-        const horaStr = horarioParts[horarioParts.length - 1]; // "09:00"
+        const horaStr = horarioParts[horarioParts.length - 1]; 
         const [hora, minutos] = horaStr.split(':').map(Number);
         const minutosDesdeMediaNoche = hora * 60 + minutos;
-        
         // Buscar días de la semana en el horario
         diasSemana.forEach((dia, index) => {
             if (clase.horario.includes(dia)) {
                 let diferenciaDias = index - diaActual;
                 if (diferenciaDias < 0) diferenciaDias += 7;
-                
                 // Si es el mismo día, verificar la hora
                 if (diferenciaDias === 0 && minutosDesdeMediaNoche <= horaActual) {
-                    diferenciaDias = 7; // Ya pasó, buscar próxima semana
-                }
-                
+                    diferenciaDias = 7; }
                 const diferenciaTotal = diferenciaDias * 1440 + (minutosDesdeMediaNoche - horaActual);
-                
                 if (diferenciaTotal > 0 && diferenciaTotal < menorDiferencia) {
                     menorDiferencia = diferenciaTotal;
                     proximaClase = {
@@ -7723,7 +7360,6 @@ function actualizarProximaClase(clases) {
             }
         });
     });
-    
     const horaElem = document.getElementById('proximaClaseHora');
     if (proximaClase) {
         horaElem.textContent = proximaClase.hora;
@@ -7918,15 +7554,10 @@ function verificarClaseEnCurso(clases) {
         card.style.display = 'none';
     }
 }
-
-// ============================================
 // TOMAR ASISTENCIA
-// ============================================
-
 let claseAsistenciaActual = null;
 let fechaAsistenciaActual = null;
-let estadoAsistencias = {}; // {socioId: true/false}
-
+let estadoAsistencias = {}; 
 function abrirTomarAsistencia(claseId, fecha) {
     const clase = database.clasesGym.find(c => c.id === claseId);
     if (!clase) return;
@@ -7948,13 +7579,10 @@ function abrirTomarAsistencia(claseId, fecha) {
     );
     
     document.getElementById('asistenciaTotal').textContent = turnosClase.length;
-    
     // Generar lista de alumnos
     generarListaAlumnosAsistencia(turnosClase);
-    
     // Mostrar modal
     document.getElementById('modalTomarAsistencia').style.display = 'flex';
-    
     // Actualizar estadísticas iniciales
     actualizarEstadisticasAsistencia();
 }
@@ -8081,7 +7709,7 @@ async function guardarAsistenciaClase() {
                     fallidos++;
                 }
             } else {
-                exitosos++; // Ya estaba registrado
+                exitosos++;
             }
         }
     }
@@ -8114,9 +7742,7 @@ function verDetallesClase(claseId) {
     
     alert(`📋 Detalles de la Clase\n\nNombre: ${clase.nombre}\nTipo: ${clase.tipo}\nHorario: ${clase.horario}\nDuración: ${clase.duracion}\nCupo: ${alumnos.length}/${clase.cupoMaximo}\n\nAlumnos inscritos:\n${alumnosNombres.length > 0 ? alumnosNombres.join('\n') : 'Ninguno'}`);
 }
-
 // Inicializar el módulo cuando se carga
 console.log('✅ Módulo Instructor cargado correctamente');
-
 console.log('👤 Usuario actual:', currentUser);
 console.log('📋 Instructores en BD:', database.instructores);
