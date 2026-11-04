@@ -1,8 +1,5 @@
 <?php
-/**
- * API para gestión de clases y turnos
- * The Best Gym - Sistema de Gestión
- */
+/* API para gestión de clases y turnos*/
 
 require_once '../db_connection.php';
 
@@ -38,14 +35,22 @@ try {
     handleDbError($e);
 }
 
-/**
- * GET - Obtener clases
- */
+/**GET - Obtener clases*/
 function handleGet($db) {
-    // Obtener todas las clases (para reservas de socios)
+    // Obtener todas las clases
     if (isset($_GET['action']) && $_GET['action'] === 'all') {
         $stmt = $db->query("
-            SELECT * FROM clases 
+            SELECT 
+                id,
+                nombre,
+                dia,
+                hora,
+                instructor,
+                duracion,
+                cupos_total as cuposTotal,
+                cupos_ocupados as cuposOcupados,
+                activa
+            FROM clases 
             WHERE activa = 1 
             ORDER BY 
                 FIELD(dia, 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'),
@@ -56,7 +61,6 @@ function handleGet($db) {
         jsonResponse(['success' => true, 'data' => $clases]);
     }
     
-    // ✅ OBTENER CLASES GYM (para instructores) - MEJORADO
     else if (isset($_GET['action']) && $_GET['action'] === 'gym') {
         $stmt = $db->query("
             SELECT 
@@ -76,7 +80,6 @@ function handleGet($db) {
         ");
         $clases = $stmt->fetchAll();
         
-        // Log para debug
         error_log("✅ Clases GYM cargadas: " . count($clases));
         
         jsonResponse(['success' => true, 'data' => $clases]);
@@ -109,7 +112,17 @@ function handleGet($db) {
         $socio_id = intval($_GET['socio_id'] ?? 0);
         
         $stmt = $db->prepare("
-            SELECT t.*, c.nombre, c.dia, c.hora, c.instructor, c.duracion
+            SELECT 
+                t.id,
+                t.socio_id as socioId,
+                t.clase_id as claseId,
+                t.fecha,
+                t.estado,
+                c.nombre, 
+                c.dia, 
+                c.hora, 
+                c.instructor, 
+                c.duracion
             FROM turnos t
             INNER JOIN clases c ON t.clase_id = c.id
             WHERE t.socio_id = ? AND t.estado = 'Confirmado'

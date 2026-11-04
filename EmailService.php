@@ -10,21 +10,12 @@ require_once 'email_config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Si instalaste con Composer:
 require 'vendor/autoload.php';
 
-// Si descargaste manualmente, descomenta estas líneas:
-// require 'path/to/PHPMailer/src/Exception.php';
-// require 'path/to/PHPMailer/src/PHPMailer.php';
-// require 'path/to/PHPMailer/src/SMTP.php';
 
 class EmailService {
     
-    /**
-     * Envía credenciales de nuevo usuario
-     */
     public static function enviarCredencialesUsuario($destinatario, $nombreUsuario, $username, $password, $rol) {
-        // Validar configuración
         $validacion = validarConfiguracionEmail();
         if (!$validacion['success']) {
             return $validacion;
@@ -33,20 +24,11 @@ class EmailService {
         $mail = self::configurarMailer();
         
         try {
-            // Configurar destinatario
             $mail->addAddress($destinatario, $nombreUsuario);
-            
-            // Asunto
             $mail->Subject = 'Bienvenido a The Best Gym - Tus Credenciales de Acceso';
-            
-            // Cuerpo del email (HTML)
             $mail->isHTML(true);
             $mail->Body = self::plantillaCredencialesUsuario($nombreUsuario, $username, $password, $rol);
-            
-            // Alternativa en texto plano
             $mail->AltBody = self::plantillaCredencialesTextoPlano($nombreUsuario, $username, $password, $rol);
-            
-            // Enviar
             $mail->send();
             
             return [
@@ -64,7 +46,7 @@ class EmailService {
     }
     
     /**
-     * Envía credenciales de nuevo socio (incluye info del plan)
+     * Envía credenciales de nuevo socio
      */
     public static function enviarCredencialesSocio($destinatario, $nombreSocio, $dni, $username, $password, $planNombre, $vencimiento, $costo) {
         // Validar configuración
@@ -104,8 +86,6 @@ class EmailService {
      */
     private static function configurarMailer() {
         $mail = new PHPMailer(true);
-        
-        // Configuración del servidor
         $mail->isSMTP();
         $mail->Host = SMTP_HOST;
         $mail->SMTPAuth = true;

@@ -1915,6 +1915,8 @@ async function initMainSystem() {
     // Mostrar módulo por defecto según rol
     if (currentUser.rol === "Socio") {
         showModule("miPlan");
+    } else if (currentUser.rol === "Instructor") {
+        showModule("misClases");
     } else {
         showModule("dashboard");
     }
@@ -2378,7 +2380,7 @@ async function guardarNuevoUsuario(e) {
     const nombreCompleto = `${nombre} ${apellido}`;
 
     try {
-        // ✅ PASO 1: Si es socio, crear primero el socio en MySQL
+        
         let socioId = null;
         if (rol === "Socio") {
             const socioData = {
@@ -2397,7 +2399,6 @@ async function guardarNuevoUsuario(e) {
             socioId = resultSocio.id;
         }
 
-        // ✅ PASO 2: Crear el usuario en MySQL
         const usuarioData = {
             username: username,
             password: password,
@@ -2412,7 +2413,6 @@ async function guardarNuevoUsuario(e) {
             return;
         }
 
-        // ✅ PASO 3: Si es instructor, crear el instructor
         if (rol === "Instructor") {
             const instructorData = {
                 usuario_id: resultUsuario.id,
@@ -2425,7 +2425,6 @@ async function guardarNuevoUsuario(e) {
             await crearInstructorEnAPI(instructorData);
         }
 
-        // ✅ PASO 4: Enviar credenciales por email (opcional)
         let emailResponse = null;
         try {
             emailResponse = await enviarCredencialesPorEmail(
@@ -4532,6 +4531,21 @@ function confirmarModificacionTurno(turnoId) {
 
     const claseAnterior = database.clases.find((c) => c.id === turno.claseId);
     const claseNueva = database.clases.find((c) => c.id === nuevaClaseId);
+
+    // Verificar si hay cupos DESPUÉS de liberar el de la clase anterior
+    const cuposDisponibles = claseNueva.cuposTotal - claseNueva.cuposOcupados;
+    
+    // Si es la misma clase, no hay problema
+    if (claseAnterior.id === claseNueva.id) {
+        alert("⚠️ Ya estás inscrito en esta clase. Selecciona una clase diferente.");
+        return;
+    }
+    
+    // Verificar cupos (considerando que liberaremos uno)
+    if (cuposDisponibles <= 0) {
+        alert("⚠️ La clase seleccionada no tiene cupos disponibles");
+        return;
+    }
 
     // Liberar cupo de la clase anterior
     claseAnterior.cuposOcupados -= 1;

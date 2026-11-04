@@ -52,29 +52,18 @@
 }
 
 :root {
-    /* Colores principales inspirados en el logo */
     --primary-color: #FF6B35;
-    /* Naranja vibrante */
     --primary-dark: #E85A2A;
-    /* Naranja oscuro */
     --secondary-color: #2C3E50;
-    /* Azul oscuro elegante */
     --accent-color: #FFD23F;
-    /* Amarillo dorado */
-
-    /* Colores de estado (mantener) */
     --success-color: #10b981;
     --danger-color: #ef4444;
     --warning-color: #f59e0b;
-
-    /* Colores base */
     --bg-gray: #F8F9FA;
     --white: #ffffff;
     --text-dark: #2C3E50;
     --text-light: #7F8C8D;
     --border-color: #E0E0E0;
-
-    /* Nuevos gradientes */
     --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FFD23F 100%);
     --gradient-sidebar: linear-gradient(180deg, #2C3E50 0%, #34495E 100%);
     --gradient-dark: linear-gradient(135deg, #2C3E50 0%, #1a252f 100%);
@@ -146,32 +135,21 @@ body {
     justify-content: center;
     margin: 0 auto 24px;
     animation: logoFloat 3s ease-in-out infinite;
-}
-
-.logo-circle {
-    width: 120px;
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px;
     background: transparent !important;
-    /* Forzar sin fondo */
     border-radius: 0;
-    /* Sin borde redondeado */
     box-shadow: none;
-    /* Sin sombra en el contenedor */
 }
 
 .logo-circle i {
     display: none;
-    /* Ocultar el ícono de font-awesome si existe */
 }
 
 .logo-circle img {
-    width: 100%;
+    width: 110%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover; 
+    border-radius: 50%; 
+    background: none;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 }
 
@@ -1332,10 +1310,7 @@ body {
     background: #dc2626;
 }
 
-/* ============================================
-   CORRECCIÓN MÓDULO PERFIL - ALINEACIÓN
-   ============================================ */
-
+/* MÓDULO PERFIL - ALINEACIÓN */
 /* Contenedor principal del perfil */
 .perfil-container {
     max-width: 1400px;
@@ -1404,17 +1379,15 @@ body {
     flex-wrap: wrap;
 }
 
-/* Grid de tarjetas de perfil - CORRECCIÓN PRINCIPAL */
+/* Grid de tarjetas de perfil */
 .perfil-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    /* 3 columnas iguales */
     gap: 24px;
     align-items: start;
-    /* IMPORTANTE: Alinea las tarjetas al inicio */
 }
 
-/* Asegurar que todas las cards tengan la misma altura base */
+/*cards altura base */
 .perfil-grid .card {
     height: 100%;
     display: flex;
@@ -1423,7 +1396,7 @@ body {
     /* Padding uniforme */
 }
 
-/* Títulos de las tarjetas - mismo tamaño */
+/* Títulos de las tarjetas */
 .perfil-grid .card h3 {
     margin-bottom: 20px;
     font-size: 18px;
@@ -1439,10 +1412,8 @@ body {
     font-size: 20px;
 }
 
-/* La última card (Seguridad) ocupa el ancho completo si está sola */
 .perfil-grid .card:nth-child(4) {
     grid-column: 1 / -1;
-    /* Ocupa todas las columnas */
 }
 
 .perfil-grid .card h3 {
@@ -1454,11 +1425,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    /* Espacio uniforme entre campos */
     flex: 1;
-    /* Permite que el formulario crezca */
     min-height: 520px;
-    /* Altura mínima uniforme para todos los formularios */
 }
 
 .perfil-form .form-group {
@@ -1486,7 +1454,6 @@ body {
     transition: all 0.3s;
     font-family: inherit;
     box-sizing: border-box;
-    /* IMPORTANTE */
     line-height: 1.5;
 }
 
@@ -1497,20 +1464,13 @@ body {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
 }
-
-/* CORRECCIÓN: Tamaño uniforme para textareas */
 .perfil-form textarea {
     resize: vertical;
     min-height: 100px;
-    /* Altura fija para todos los textareas */
     max-height: 150px;
-    /* Altura máxima */
 }
-
-/* Espaciador para empujar el botón al final */
 .perfil-form button[type="submit"] {
     margin-top: auto;
-    /* Empuja el botón al final */
     width: 100%;
     padding: 14px 24px;
 }
@@ -1562,9 +1522,7 @@ body {
 @media (max-width: 1200px) {
     .perfil-grid {
         grid-template-columns: repeat(2, 1fr);
-        /* 2 columnas en tablets */
     }
-
     .perfil-grid .card:nth-child(4) {
         grid-column: 1 / -1;
     }
@@ -1575,10 +1533,8 @@ body {
         flex-direction: column;
         text-align: center;
     }
-
     .perfil-grid {
         grid-template-columns: 1fr;
-        /* 1 columna en móviles */
     }
 
     .perfil-grid .card {
@@ -1595,8 +1551,6 @@ body {
         font-size: 40px;
     }
 }
-
-/* Asegurar que los botones se vean bien */
 .perfil-form .btn-primary {
     background: var(--gradient-primary);
     padding: 14px;
@@ -1611,14 +1565,12 @@ body {
     box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
 }
 
-/* Mejora visual de los inputs */
 .perfil-form input[readonly] {
     background-color: var(--bg-gray);
     cursor: not-allowed;
     color: var(--text-light);
 }
 
-/* Form hint para información adicional */
 .form-hint {
     font-size: 12px;
     color: var(--text-light);
@@ -1792,7 +1744,6 @@ body {
 
 #toggleSidebar {
     z-index: 1001;
-    /* Que no se superponga con modales */
 }
 
 .modal~.sidebar #toggleSidebar,
@@ -1840,7 +1791,6 @@ body:has(.modal) #toggleSidebar {
     cursor: pointer;
     transition: all 0.3s;
     z-index: 1000;
-    /* Asegurar que esté encima */
 }
 
 .modal-close:hover {
@@ -2109,9 +2059,7 @@ body:has(.modal) #toggleSidebar {
     }
 }
 
-/* ============================================
-   MÓDULO CLASES E INSTRUCTORES
-   ============================================ */
+/*MÓDULO CLASES E INSTRUCTORES */
 
 .card-header-flex {
     display: flex;
@@ -2509,9 +2457,7 @@ body:has(.modal) #toggleSidebar {
     flex: 0 0 auto;
     width: auto;
 }
-/* ============================================ */
 /* MÓDULO INSTRUCTOR */
-/* ============================================ */
 
 .instructor-container {
     display: flex;
@@ -3125,9 +3071,7 @@ body:has(.modal) #toggleSidebar {
     }
 }
 
-/* ============================================
-   MÓDULO GESTIÓN DE USUARIOS
-   ============================================ */
+/* MÓDULO GESTIÓN DE USUARIOS */
 
 /* Info de usuario en tabla */
 .usuario-info {
